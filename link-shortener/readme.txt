@@ -7,7 +7,7 @@ Contributors: dipakparmar443, nareshparmar827
 Tags: post, page, links, urls, shortlinks
 Donate link: https://www.paypal.me/dipakparmar443/
 Requires at least: 4.5
-Tested up to: 6.4.2
+Tested up to: 6.7.1
 Stable tag: 1.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
