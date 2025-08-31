@@ -3,13 +3,15 @@
  * Plugin Name:     Link Shortner
  * Plugin URI:      https://wordpress.org/plugins/link-shortener/
  * Description:     Generate unique short link and share any social media.
- * Author:          Dipak Parmar
+ * Author:          Dipakkumar Parmar
  * Contributors: 	dipakparmar443, nareshparmar827
  * Author URI:      https://profiles.wordpress.org/dipakparmar443/
  * Donate link:     https://www.paypal.me/dipakparmar443/
  * Text Domain:     link-shortener
+ * License:         GPL-2.0-or-later
+ * License URI:     https://www.gnu.org/licenses/gpl-2.0.html 
  * Domain Path:     /languages
- * Version:         1.0
+ * Version:         1.1
  *
  * @package         Link_Shortener
  */
@@ -19,14 +21,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once 'includes/class-' . basename( __FILE__ );
-
-/**
- * Plugin textdomain.
- */
-function link_shortener_textdomain() {
-	load_plugin_textdomain( 'link-shortener', false, basename( dirname( __FILE__ ) ) . '/languages' );
-}
-add_action( 'plugins_loaded', 'link_shortener_textdomain' );
 
 /**
  * Plugin activation.

@@ -28,8 +28,13 @@ if ( ! class_exists( 'Link_Shortener' ) ) {
 		 * Register metabox.
 		 */
 		public function link_shortener_gutenberg_editor_metabox() {
-			add_meta_box( 'link-shortener', __( 'Generate Link', 'link-shortener' ), array( $this, 'link_shortener_render' ),
-				null, 'side', 'high',
+			add_meta_box(
+				'link-shortener',
+				__( 'Generate Link', 'link-shortener' ),
+				array( $this, 'link_shortener_render' ),
+				null,
+				'side',
+				'high',
 				array(
 					'__block_editor_compatible_meta_box' => true,
 				)
@@ -47,18 +52,33 @@ if ( ! class_exists( 'Link_Shortener' ) ) {
 				$button_text = __( 'Regenerate Link', 'link-shortener' );
 			}
 			$post_name = '';
-			$link = false;
-			$post_id = 0;
+			$link      = false;
+			$post_id   = 0;
 			if ( $post ) {
 				$post_name = $post->post_name;
-				$link = esc_url( get_the_permalink( $post ) );
-				$post_id = $post->ID;
+				$link      = esc_url( get_the_permalink( $post ) );
+				$post_id   = $post->ID;
 			}
 			?>
-			<p class="ls-preview"><a href="<?php echo esc_url( $link ); ?>" target="_blank" style="text-align: center; display: block;"><?php echo esc_url( $link ); ?></a></p>
-			<p><input type="hidden" name="shortener-link" value="<?php echo $post_name; ?>"></p>
-			<p><a href="javascript:;" class="button button-primary button-large" data-ls_post_id="<?php echo $post_id ?>" data-ls_url="<?php echo esc_url( home_url( '/' ) ); ?>" style="text-align: center; display: block;"><?php echo $button_text; ?></a></p>
+			<p class="ls-preview">
+				<a href="<?php echo esc_url( $link ); ?>" target="_blank" style="text-align: center; display: block;">
+					<?php echo esc_html( $link ); ?>
+				</a>
+			</p>
+			<p>
+				<input type="hidden" name="shortener-link" value="<?php echo esc_attr( $post_name ); ?>">
+			</p>
+			<p>
+				<a href="javascript:;" 
+				   class="button button-primary button-large" 
+				   data-ls_post_id="<?php echo esc_attr( $post_id ); ?>" 
+				   data-ls_url="<?php echo esc_url( home_url( '/' ) ); ?>" 
+				   style="text-align: center; display: block;">
+					<?php echo esc_html( $button_text ); ?>
+				</a>
+			</p>
 			<?php
+			wp_nonce_field( 'link_shortener_action', 'link_shortener_nonce' );
 		}
 
 		/**
@@ -68,7 +88,7 @@ if ( ! class_exists( 'Link_Shortener' ) ) {
 		 * @return array
 		 */
 		public function link_shortener_postbox_classes( $class ) {
-			if ( ! empty( $class ) && in_array( 'closed', $class ) ) {
+			if ( ! empty( $class ) && in_array( 'closed', $class, true ) ) {
 				$class = [];
 			}
 			return $class;
@@ -78,7 +98,13 @@ if ( ! class_exists( 'Link_Shortener' ) ) {
 		 * Admin enqueue script.
 		 */
 		public function link_shortener_admin_script() {
-			wp_enqueue_script( 'ls-admin-script', plugin_dir_url( __FILE__ ) . '../assets/js/link-shortener.js', array( 'jquery' ), '', true );
+			wp_enqueue_script(
+			    'ls-admin-script',
+			    plugin_dir_url( __FILE__ ) . '../assets/js/link-shortener.js',
+			    array( 'jquery' ),
+			    filemtime( plugin_dir_path( __FILE__ ) . '../assets/js/link-shortener.js' ),
+			    true
+			);
 		}
 
 		/**
@@ -89,11 +115,18 @@ if ( ! class_exists( 'Link_Shortener' ) ) {
 		 * @param bool $update Edit post OR not.
 		 */
 		public function link_shortener_insert_post_data( $null, $slug, $post_ID, $post_status, $post_type, $post_parent ) {
+			
 			if ( isset( $_POST['shortener-link'] ) ) {
-				$slug = sanitize_title( $_POST['shortener-link'] );
+			    // Verify nonce for security.
+			    if ( ! isset( $_POST['link_shortener_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['link_shortener_nonce'] ) ), 'link_shortener_action' ) ) {
+			        return $slug; // Abort if nonce fails.
+			    }
+
+			    $slug = sanitize_title( wp_unslash( $_POST['shortener-link'] ) );
 			} else {
-				$slug = sanitize_title( $slug );
+			    $slug = sanitize_title( $slug );
 			}
+
 			return $slug;
 		}
 	}
